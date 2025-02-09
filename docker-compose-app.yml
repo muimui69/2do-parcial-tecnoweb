@@ -1,0 +1,37 @@
+services:
+  gateway:
+    image: tkm/img-gateway
+    container_name: gateway-service
+    restart: always
+    ports:
+      - 9000:8080
+    networks:
+      - micro
+  security:
+    image: tkm/img-seguridad
+    container_name: seguridad-service
+    restart: always
+    ports:
+      - 9001:8080
+    networks:
+      - micro
+  account:
+    image: tkm/img-inventario
+    container_name: inventario-service
+    restart: always
+    ports:
+      - 9002:8080
+    networks:
+      - micro
+  deposit:
+    image: tkm/img-venta
+    container_name: venta-service
+    restart: always
+    ports:
+      - 9003:8080
+    networks:
+      - micro
+
+networks:
+  micro:
+    name: micro

@@ -1,0 +1,26 @@
+﻿services:
+  mysql:
+    image: mysql
+    container_name: mysql-database
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=Passw0rd
+    ports:
+      - 3307:3306
+      - 33061:33060
+    networks:
+      - micro
+
+  postgres:
+    image: postgres
+    container_name: postgres-database
+    environment:
+      - POSTGRES_PASSWORD=Passw0rd
+    ports:
+      - 5434:5432
+    networks:
+      - micro
+
+networks:
+  micro:
+    name: micro
