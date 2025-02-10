@@ -1,6 +1,6 @@
+using Aforo255.Cross.Http.Src;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,7 +34,9 @@ namespace MSVenta.Inventario
             services.AddScoped<IProductoAlmacenService, ProductoAlmacenService>();
             services.AddScoped<IDetalleAjusteService, DetalleAjusteService>();
             services.AddScoped<IAjusteInventarioService, AjusteInventarioService>();
-            //services.AddProxyHttp();
+
+            services.AddProxyHttp();
+            services.AddScoped<IUsuarioService, UsuarioService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

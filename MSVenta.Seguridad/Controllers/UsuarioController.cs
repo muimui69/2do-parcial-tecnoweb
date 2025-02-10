@@ -72,7 +72,6 @@ namespace MSVenta.Seguridad.Controllers
             return View();
         }
 
-        // Validar un cliente
         [HttpGet("{id}/validate")]
         public async Task<IActionResult> ValidateCustomer(int id)
         {

@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
 using System;
 
-namespace MSVenta.Venta.Services
+namespace MSVenta.Inventario.Services
 {
     public class UsuarioService : IUsuarioService
     {
@@ -21,14 +21,12 @@ namespace MSVenta.Venta.Services
         {
             string uri = _configuration["proxy:urlSecurity"];
             var url = $"{uri}/{usuario_id}";
-            // Realiza la solicitud GET y obtiene la respuesta
             var response = await _httpClient.GetStringAsync(url);
-            // Verifica si la respuesta no está vacía
             if (!string.IsNullOrEmpty(response))
             {
                 return response;
             }
-            return null; // Agregar una declaración de retorno predeterminada
+            return null;
         }
 
         public async Task<bool> ValidateUsuario(int usuario_id)
@@ -38,13 +36,10 @@ namespace MSVenta.Venta.Services
                 string uri = _configuration["proxy:urlSecurity"];
                 var url = $"{uri}/{usuario_id}/validate";
 
-                // Realiza la solicitud GET y obtiene la respuesta
                 var response = await _httpClient.GetStringAsync(url);
 
-                // Verifica si la respuesta no está vacía
                 if (!string.IsNullOrEmpty(response))
                 {
-                    // Deserializa la respuesta JSON
                     var jsonResponse = JObject.Parse(response);
 
                     var message = jsonResponse["message"]?.ToString();

@@ -13,6 +13,5 @@ namespace MSVenta.Inventario.Services
         Task<bool> DeleteAsync(int id);
         bool Exists(int id);
 
-        //Task<AlmacenConProductosDto> GetAlmacenConProductosAsync(int almacenId);
     }
 }

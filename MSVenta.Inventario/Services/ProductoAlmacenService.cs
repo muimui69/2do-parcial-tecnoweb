@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MSVenta.Inventario.DTOs;
+
 //using MSVenta.Inventario.DTOs;
 using MSVenta.Inventario.Models;
 using MSVenta.Inventario.Repositories;
@@ -98,42 +100,42 @@ namespace MSVenta.Inventario.Services
             return _contextDatabase.ProductosAlmacenes.Any(a => a.Id == id);
         }
 
-        //public async Task<AlmacenConProductosDto> GetAlmacenConProductosAsync(int almacenId)
-        //{
-        //    var productosAlmacen = await _contextDatabase.ProductosAlmacenes
-        //        .Where(pa => pa.AlmacenId == almacenId)
-        //        .Include(pa => pa.Producto)
-        //            .ThenInclude(p => p.Categoria)
-        //        .Include(pa => pa.Almacen)
-        //        .ToListAsync();
+        public async Task<AlmacenConProductosDto> GetAlmacenConProductosAsync(int almacenId)
+        {
+            var productosAlmacen = await _contextDatabase.ProductosAlmacenes
+                .Where(pa => pa.AlmacenId == almacenId)
+                .Include(pa => pa.Producto)
+                    .ThenInclude(p => p.Categoria)
+                .Include(pa => pa.Almacen)
+                .ToListAsync();
 
-        //    if (productosAlmacen == null || !productosAlmacen.Any())
-        //    {
-        //        return null;
-        //    }
+            if (productosAlmacen == null || !productosAlmacen.Any())
+            {
+                return null;
+            }
 
-        //    var almacen = productosAlmacen.FirstOrDefault()?.Almacen;
+            var almacen = productosAlmacen.FirstOrDefault()?.Almacen;
 
-        //    if (almacen == null)
-        //    {
-        //        return null;
-        //    }
+            if (almacen == null)
+            {
+                return null;
+            }
 
-        //    var almacenConProductosDto = new AlmacenConProductosDto
-        //    {
-        //        AlmacenId = almacen.Id,
-        //        AlmacenNombre = almacen.Nombre,
-        //        Productos = productosAlmacen.Select(pa => new ProductoDto
-        //        {
-        //            ProductoId = pa.ProductoId,
-        //            Nombre = pa.Producto.Nombre,
-        //            Precio = (decimal)pa.Producto.Precio,
-        //            Categoria = pa.Producto.Categoria.Nombre,
-        //            Stock = pa.Stock
-        //        }).ToList()
-        //    };
+            var almacenConProductosDto = new AlmacenConProductosDto
+            {
+                AlmacenId = almacen.Id,
+                AlmacenNombre = almacen.Nombre,
+                Productos = productosAlmacen.Select(pa => new ProductoAllDto
+                {
+                    ProductoId = pa.ProductoId,
+                    Nombre = pa.Producto.Nombre,
+                    Precio = (decimal)pa.Producto.Precio,
+                    Categoria = pa.Producto.Categoria.Nombre,
+                    Stock = pa.Stock
+                }).ToList()
+            };
 
-        //    return almacenConProductosDto;
-        //}
+            return almacenConProductosDto;
+        }
     }
 }

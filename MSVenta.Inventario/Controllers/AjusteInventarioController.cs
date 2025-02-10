@@ -12,10 +12,12 @@ namespace MSVenta.Inventario.Controllers
     public class AjusteInventarioController : Controller
     {
         private readonly IAjusteInventarioService _ajusteInventarioService;
+        private readonly IUsuarioService _usuarioService;
 
-        public AjusteInventarioController(IAjusteInventarioService ajusteInventarioService)
+        public AjusteInventarioController(IAjusteInventarioService ajusteInventarioService, IUsuarioService usuarioService)
         {
             _ajusteInventarioService = ajusteInventarioService;
+            _usuarioService = usuarioService;
         }
 
         [HttpGet]
@@ -42,6 +44,12 @@ namespace MSVenta.Inventario.Controllers
         {
             if (ajusteInventario == null)
                 return BadRequest("Datos inválidos");
+
+            var usuarioValid = await _usuarioService.ValidateUsuario(ajusteInventario.IdUsuario);
+            if (!usuarioValid)
+            {
+                return BadRequest(new { Message = "El Usuario no es válido." });
+            }
 
             await _ajusteInventarioService.AddAsync(ajusteInventario);
             var nuevoAjuste = await _ajusteInventarioService.GetByIdAsync(ajusteInventario.Id);
