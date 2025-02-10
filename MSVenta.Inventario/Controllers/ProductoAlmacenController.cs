@@ -3,6 +3,8 @@ using MSVenta.Inventario.Models;
 using MSVenta.Inventario.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Aforo255.Cross.Event.Src.Bus;
+using MSVenta.Inventario.Messages.Commands;
 
 namespace MSVenta.Inventario.Controllers
 {
@@ -11,10 +13,14 @@ namespace MSVenta.Inventario.Controllers
     public class ProductoAlmacenController : Controller
     {
         private readonly IProductoAlmacenService _productoAlmacenService;
+        private readonly IEventBus _bus;
+        private readonly IVentaService _ventaService;
 
-        public ProductoAlmacenController(IProductoAlmacenService productoAlmacenService)
+        public ProductoAlmacenController(IProductoAlmacenService productoAlmacenService, IEventBus bus, IVentaService ventaService)
         {
             _productoAlmacenService = productoAlmacenService;
+            _bus = bus;
+            _ventaService = ventaService;
         }
 
         [HttpGet]
@@ -40,9 +46,30 @@ namespace MSVenta.Inventario.Controllers
             if (productoAlmacen == null)
                 return BadRequest("Datos inválidos");
 
-            await _productoAlmacenService.AddAsync(productoAlmacen);
-            var nuevoProductoAlmacen = await _productoAlmacenService.GetByIdAsync(productoAlmacen.Id);
-            return CreatedAtAction(nameof(GetById), new { id = nuevoProductoAlmacen.Id }, nuevoProductoAlmacen);
+            // Crear el objeto ProductoAlmacen
+            ProductoAlmacen productoAlmacenC = new ProductoAlmacen()
+            {
+                ProductoId = productoAlmacen.ProductoId,
+                AlmacenId = productoAlmacen.AlmacenId,
+                Stock = productoAlmacen.Stock
+            };
+
+            productoAlmacenC = await _productoAlmacenService.AddAsync(productoAlmacenC);
+
+            // Ejecutar proceso en el servicio de ventas
+            bool isProccess = _ventaService.Execute(productoAlmacenC, "create");
+            if (isProccess)
+            {
+                var productoAlmacenCreateCommand = new ProductoAlmacenCreateCommand(
+                    id: productoAlmacenC.Id,
+                    productoId: productoAlmacenC.ProductoId,
+                    almacenId: productoAlmacenC.AlmacenId,
+                    stock: productoAlmacenC.Stock
+                );
+                _bus.SendCommand(productoAlmacenCreateCommand);
+            }
+
+            return Ok(productoAlmacenC);
         }
 
         [HttpPut("{id}")]
@@ -54,8 +81,30 @@ namespace MSVenta.Inventario.Controllers
             if (!_productoAlmacenService.Exists(id))
                 return NotFound();
 
-            await _productoAlmacenService.UpdateAsync(productoAlmacen);
-            return NoContent();
+            // Crear el objeto actualizado
+            ProductoAlmacen productoAlmacenP = new ProductoAlmacen()
+            {
+                Id = productoAlmacen.Id,
+                ProductoId = productoAlmacen.ProductoId,
+                AlmacenId = productoAlmacen.AlmacenId,
+                Stock = productoAlmacen.Stock
+            };
+
+            await _productoAlmacenService.UpdateAsync(productoAlmacenP);
+
+            bool isProccess = _ventaService.Execute(productoAlmacenP, "update");
+            if (isProccess)
+            {
+                var productoAlmacenUpdatedCommand = new ProductoAlmacenUpdatedCommand(
+                    id: productoAlmacenP.Id,
+                    productoId: productoAlmacenP.ProductoId,
+                    almacenId: productoAlmacenP.AlmacenId,
+                    stock: productoAlmacenP.Stock
+                );
+                _bus.SendCommand(productoAlmacenUpdatedCommand);
+            }
+
+            return Ok(productoAlmacenP);
         }
 
         [HttpDelete("{id}")]
@@ -65,6 +114,14 @@ namespace MSVenta.Inventario.Controllers
                 return NotFound();
 
             await _productoAlmacenService.DeleteAsync(id);
+
+            bool isProccess = _ventaService.Execute(new ProductoAlmacen { Id = id }, "delete");
+            if (isProccess)
+            {
+                var productoAlmacenDeletedCommand = new ProductoAlmacenDeletedCommand(id);
+                _bus.SendCommand(productoAlmacenDeletedCommand);
+            }
+
             return NoContent();
         }
 

@@ -20,9 +20,9 @@ namespace MSVenta.Inventario.Models
         public decimal Precio { get; set; }
 
         [Column("id_categoria")]
-        public int? IdCategoria { get; set; }
+        public int IdCategoria { get; set; }
 
         [ForeignKey("IdCategoria")]
-        public Categoria? Categoria { get; set; }
+        public Categoria Categoria { get; set; }
     }
 }

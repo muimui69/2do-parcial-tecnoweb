@@ -91,13 +91,37 @@ namespace MSVenta.Venta.Repositories
                       .HasForeignKey(dv => dv.VentaId);
             });
 
+            modelBuilder.Entity<Categoria>(entity =>
+            {
+                entity.ToTable("categoria");
 
-            // Configuración de la relación entre Producto y Categoria
-            modelBuilder.Entity<Producto>()
-                .HasOne(p => p.Categoria)
-                .WithMany()  // Suponiendo que Categoria no tiene una colección de productos
-                .HasForeignKey(p => p.Id_Categoria)
-                .OnDelete(DeleteBehavior.Cascade);  // O el comportamiento de eliminación que prefieras
+                entity.Property(c => c.Id).HasColumnName("id");
+                entity.Property(c => c.Nombre).HasColumnName("nombre");
+            });
+
+
+            modelBuilder.Entity<Producto>(entity =>
+            {
+                entity.ToTable("producto");
+
+                entity.Property(p => p.Id).HasColumnName("id");
+                entity.Property(p => p.Nombre).HasColumnName("nombre");
+                entity.Property(p => p.Descripcion).HasColumnName("descripcion");
+                entity.Property(p => p.Precio).HasColumnName("precio");
+                entity.Property(p => p.IdCategoria).HasColumnName("id_categoria");  // 👈 Asegúrate de que este mapeo es correcto
+
+                // Configuración de la relación entre Producto y Categoria
+                entity.HasOne(p => p.Categoria)
+                      .WithMany()
+                      .HasForeignKey(p => p.IdCategoria)
+                      .OnDelete(DeleteBehavior.Cascade);  // Asegúrate que DeleteBehavior coincide con lo que quieres
+            });
+            //// Configuración de la relación entre Producto y Categoria
+            //modelBuilder.Entity<Producto>()
+            //    .HasOne(p => p.Categoria)
+            //    .WithMany()  // Suponiendo que Categoria no tiene una colección de productos
+            //    .HasForeignKey(p => p.Id_Categoria)
+            //    .OnDelete(DeleteBehavior.Cascade);  // O el comportamiento de eliminación que prefieras
 
             //modelBuilder.Entity<Categoria>()
             //    .HasMany(c => c.Productos)

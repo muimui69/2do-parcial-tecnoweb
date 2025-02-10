@@ -15,12 +15,14 @@ namespace MSVenta.Inventario.Controllers
         private readonly IProductoService _productoService;
         private readonly IEventBus _bus;
         private readonly IVentaService _ventaService;
+        private readonly ICategoriaService _categoriaService;
 
-        public ProductoController(IProductoService productoService, IEventBus bus, IVentaService ventaService)
+        public ProductoController(IProductoService productoService, IEventBus bus, IVentaService ventaService,ICategoriaService categoriaService)
         {
             _productoService = productoService;
             _bus = bus;
             _ventaService = ventaService;
+            _categoriaService = categoriaService;
         }
 
         [HttpGet]
@@ -43,9 +45,16 @@ namespace MSVenta.Inventario.Controllers
         [HttpPost]
         public async Task<ActionResult<Producto>> Create([FromBody] Producto producto)
         {
+            // Verificar si el producto recibido es válido
             if (producto == null)
                 return BadRequest("Datos inválidos");
 
+            // Verificar que la categoría existe en la base de datos
+            var categoria = await _categoriaService.GetCategoriaByIdAsync((int)producto.IdCategoria);
+            if (categoria == null)
+                return BadRequest("La categoría proporcionada no existe.");
+
+            // Crear el objeto Producto
             Producto productoC = new Producto()
             {
                 Nombre = producto.Nombre,
@@ -54,21 +63,28 @@ namespace MSVenta.Inventario.Controllers
                 IdCategoria = producto.IdCategoria
             };
 
-            productoC = await _productoService.CreateProductoAsync(producto);
+            // Crear el producto en la base de datos
+            productoC = await _productoService.CreateProductoAsync(productoC);
+
+            // Ejecutar el proceso de venta (si aplica)
             bool isProccess = _ventaService.Execute(productoC, "create");
             if (isProccess)
             {
+                // Enviar el comando de creación de producto
                 var productoCreateCommand = new ProductoCreateCommand(
                     id: productoC.Id,
                     nombre: productoC.Nombre,
                     descripcion: productoC.Descripcion,
                     precio: productoC.Precio,
-                    id_categoria: productoC.IdCategoria
+                    idCategoria: productoC.IdCategoria
                 );
                 _bus.SendCommand(productoCreateCommand);
             }
+
+            // Devolver la respuesta con el producto creado
             return Ok(productoC);
         }
+
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] Producto producto)

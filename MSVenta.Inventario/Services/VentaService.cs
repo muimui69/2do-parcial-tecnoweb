@@ -52,12 +52,27 @@ namespace MSVenta.Inventario.Services
         // 📌 PRODUCTO
         public async Task<bool> CreateProducto(Producto request)
         {
+            // Creamos un objeto anónimo solo con los campos necesarios para la solicitud
+            var productoParaEnviar = new
+            {
+                id =  request.Id,
+                nombre = request.Nombre,
+                descripcion = request.Descripcion,
+                precio = request.Precio,
+                idCategoria = request.IdCategoria
+            };
+
+            // Serializamos el objeto anónimo
             string uri = _configuration["proxy:urlSale"];
-            var content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
-            var response = await _httpClient.PostAsync(uri + "/producto", content);
-            response.EnsureSuccessStatusCode();
-            return true;
+            var content = new StringContent(JsonConvert.SerializeObject(productoParaEnviar), Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PostAsync(uri + "/producto", content);  // Envía la solicitud POST al endpoint
+
+            response.EnsureSuccessStatusCode();  // Si la respuesta no es exitosa, lanza una excepción
+
+            return true;  // Retorna true si la creación fue exitosa
         }
+
 
         public async Task<bool> UpdateProducto(Producto request)
         {
@@ -139,7 +154,7 @@ namespace MSVenta.Inventario.Services
                 .CircuitBreaker(3, TimeSpan.FromSeconds(15));
 
             var retry = Policy.Handle<Exception>()
-                    .WaitAndRetryForever(attempt => TimeSpan.FromSeconds(15))
+                    .WaitAndRetryForever(attempt => TimeSpan.FromSeconds(30))
                     .Wrap(circuitBreakerPolicy);
 
             retry.Execute(() =>
