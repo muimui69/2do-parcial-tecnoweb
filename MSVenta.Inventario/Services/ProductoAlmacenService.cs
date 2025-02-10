@@ -5,6 +5,7 @@ using MSVenta.Inventario.DTOs;
 using MSVenta.Inventario.Models;
 using MSVenta.Inventario.Repositories;
 using MSVenta.Inventario.Services;
+using Polly;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,25 +21,31 @@ namespace MSVenta.Inventario.Services
             _contextDatabase = contextDatabase;
         }
 
-        public async Task<IEnumerable<ProductoAlmacenDTO>> GetAllAsync()
+        //public async Task<IEnumerable<ProductoAlmacenDTO>> GetAllAsync()
+        public async Task<IEnumerable<ProductoAlmacen>> GetAllAsync()
         {
+            //return await _contextDatabase.ProductosAlmacenes
+            //    .Include(pa => pa.Producto)
+            //    .Include(pa => pa.Almacen)
+            //    .Include(pa => pa.DetallesAjuste)
+            //    .Select(pa => new ProductoAlmacenDTO
+            //    {
+            //        Id = pa.Id,
+            //        ProductoNombre = pa.Producto.Nombre,
+            //        AlmacenNombre = pa.Almacen.Nombre,
+            //        Stock = pa.Stock,
+            //        DetallesAjuste = pa.DetallesAjuste.Select(da => new DetalleAjusteProductoAlmacenDTO
+            //        {
+            //            IdDetalleAjuste = da.Id,
+            //            Cantidad = da.Cantidad
+            //        }).ToList()
+            //    })
+            //    .ToListAsync();
             return await _contextDatabase.ProductosAlmacenes
-                .Include(pa => pa.Producto)
-                .Include(pa => pa.Almacen)
-                .Include(pa => pa.DetallesAjuste)
-                .Select(pa => new ProductoAlmacenDTO
-                {
-                    Id = pa.Id,
-                    ProductoNombre = pa.Producto.Nombre,
-                    AlmacenNombre = pa.Almacen.Nombre,
-                    Stock = pa.Stock,
-                    DetallesAjuste = pa.DetallesAjuste.Select(da => new DetalleAjusteProductoAlmacenDTO
-                    {
-                        IdDetalleAjuste = da.Id,
-                        Cantidad = da.Cantidad
-                    }).ToList()
-                })
-                .ToListAsync();
+              .Include(pa => pa.Producto)
+                  .ThenInclude(c => c.Categoria)
+              .Include(pa => pa.Almacen)
+              .ToListAsync();
         }
 
 

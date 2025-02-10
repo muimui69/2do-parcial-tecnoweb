@@ -6,7 +6,9 @@ namespace MSVenta.Inventario.Services
 {
     public interface IProductoAlmacenService
     {
-        Task<IEnumerable<ProductoAlmacenDTO>> GetAllAsync();
+        //Task<IEnumerable<ProductoAlmacenDTO>> GetAllAsync();
+        Task<IEnumerable<ProductoAlmacen>> GetAllAsync();
+
         Task<ProductoAlmacenDTO> GetByIdAsync(int id);
         Task<ProductoAlmacen> AddAsync(ProductoAlmacen productoAlmacen);
         Task<bool> UpdateAsync(ProductoAlmacen productoAlmacen);

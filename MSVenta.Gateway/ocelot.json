@@ -141,6 +141,7 @@
         "AllowedScopes": []
       }
     },
+    // MICROSERVICE INVENTARIO
     {
       "DownstreamPathTemplate": "/api/producto/{id}",
       "DownstreamScheme": "http",
@@ -237,7 +238,6 @@
         "AllowedScopes": []
       }
     },
-    // Inventario Microservice
     {
       "DownstreamPathTemplate": "/api/producto",
       "DownstreamScheme": "http",
