@@ -22,12 +22,8 @@ using MediatR;
 using System.Reflection;
 using Microsoft.AspNetCore.Http;
 using Aforo255.Cross.Event.Src.Bus;
-//using MSVenta.Venta.Messages.EventHandlers;
-//using MSVenta.Venta.Messages.Events;
 using Microsoft.Extensions.Hosting.Internal;
 using Consul;
-//using MSVenta.Venta.Messages.Commands;
-//using MSVenta.Venta.Messages.CommandHandlers;
 
 
 namespace MSVenta.Venta
@@ -114,7 +110,7 @@ namespace MSVenta.Venta
         private void ConfigureEventBus(IApplicationBuilder app)
         {
             var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
-            //eventBus.Subscribe<CategoriaCreatedEvent, CategoriaCreatedEventHandler>();
+            //eventBus.Subscribe<VentaCreatedEvent, VentaCreatedEventHandler>();
         }
     }
 }

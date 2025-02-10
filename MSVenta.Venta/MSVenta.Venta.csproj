@@ -24,11 +24,4 @@
 
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Messages\CommandHandlers\" />
-    <Folder Include="Messages\Commands\" />
-    <Folder Include="Messages\EventHandlers\" />
-    <Folder Include="Messages\Events\" />
-  </ItemGroup>
-
 </Project>
