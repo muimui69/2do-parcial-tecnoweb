@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Aforo255.Cross.Event.Src.Bus;
+using Microsoft.AspNetCore.Mvc;
+using MSVenta.Inventario.Messages.Commands;
 using MSVenta.Inventario.Models;
 using MSVenta.Inventario.Services;
 using System.Collections.Generic;
@@ -10,11 +12,15 @@ namespace MSVenta.Inventario.Controllers
     [ApiController]
     public class CategoriaController : Controller
     {
+        private readonly IEventBus _bus;
         private readonly ICategoriaService _categoriaService;
+        private readonly IVentaService _ventaService;
 
-        public CategoriaController(ICategoriaService categoriaService)
+        public CategoriaController(ICategoriaService categoriaService, IEventBus bus,IVentaService ventaService)
         {
             _categoriaService = categoriaService;
+            _bus = bus;
+            _ventaService = ventaService;
         }
 
         [HttpGet]
@@ -44,6 +50,29 @@ namespace MSVenta.Inventario.Controllers
             var nuevaCategoria = await _categoriaService.GetCategoriaByIdAsync(categoria.Id);
             return CreatedAtAction(nameof(GetById), new { id = nuevaCategoria.Id }, nuevaCategoria);
         }
+
+        [HttpPost("CrearCategoria")]
+        public async Task<ActionResult<Categoria>> CrearCategoria([FromBody] Categoria request)
+        {
+            Categoria categoria = new Categoria()
+            {
+                Nombre = request.Nombre
+            };
+
+            categoria = await _categoriaService.CreateCategoriaAsync(categoria);
+
+            bool isProccess = _ventaService.Execute(categoria);
+            if (isProccess) 
+            {
+                var categoriaCreateCommand = new CategoriaCreateCommand(
+                id: categoria.Id,
+                nombre: categoria.Nombre
+                );
+                _bus.SendCommand(categoriaCreateCommand);
+            };
+            return Ok(categoria);
+        }
+
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] Categoria categoria)

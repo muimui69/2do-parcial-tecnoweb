@@ -8,7 +8,7 @@ namespace MSVenta.Inventario.Services
     {
         Task<IEnumerable<Categoria>> GetAllCategoriasAsync();
         Task<Categoria> GetCategoriaByIdAsync(int id);
-        Task CreateCategoriaAsync(Categoria categoria);
+        Task <Categoria> CreateCategoriaAsync(Categoria categoria);
         Task UpdateCategoriaAsync(Categoria categoria);
         Task DeleteCategoriaAsync(int id);
         bool Exists(int id);

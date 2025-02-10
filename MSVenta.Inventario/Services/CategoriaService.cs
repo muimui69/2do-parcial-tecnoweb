@@ -26,10 +26,11 @@ namespace MSVenta.Inventario.Services
             return await _contextDatabase.Categorias.FirstOrDefaultAsync(c => c.Id == id);
         }
 
-        public async Task CreateCategoriaAsync(Categoria categoria)
+        public async Task<Categoria> CreateCategoriaAsync(Categoria categoria)
         {
             _contextDatabase.Categorias.Add(categoria);
             await _contextDatabase.SaveChangesAsync();
+            return categoria;
         }
 
         public async Task UpdateCategoriaAsync(Categoria categoria)

@@ -1,5 +1,9 @@
 using Aforo255.Cross.Http.Src;
 using Aforo255.Cross.Token.Src;
+using Aforo255.Cross.Discovery.Consul;
+using Aforo255.Cross.Discovery.Mvc;
+using Aforo255.Cross.Event.Src;
+using Aforo255.Cross.Tracing.Src;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +18,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MediatR;
+using System.Reflection;
+using Microsoft.AspNetCore.Http;
+using Aforo255.Cross.Event.Src.Bus;
+using MSVenta.Venta.Messages.EventHandlers;
+using MSVenta.Venta.Messages.Events;
+using Microsoft.Extensions.Hosting.Internal;
+using Consul;
+using MSVenta.Venta.Messages.Commands;
+using MSVenta.Venta.Messages.CommandHandlers;
+
 
 namespace MSVenta.Venta
 {
@@ -47,11 +62,31 @@ namespace MSVenta.Venta
             services.AddScoped<IUsuarioService, UsuarioService>();
 
 
+           /*Start RabbitMQ*/
+            services.AddMediatR(typeof(Startup).GetTypeInfo().Assembly);
+            services.AddRabbitMQ();
+            //services.AddTransient<IRequestHandler<CategoriaCreateCommand, bool>, CategoriaCommandHandler>();
+            services.AddScoped<IEventHandler<CategoriaCreatedEvent>, CategoriaCreatedEventHandler>();
+            /*End RabbitMQ*/
+
+
+            /*Start - Consul*/
+            services.AddSingleton<IServiceId, ServiceId>();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddConsul();
+            /*End - Consul*/
+
+            /*Start - Tracer distributed*/
+            services.AddJaeger();
+            services.AddOpenTracing();
+            /*End - Tracer distributed*/
+
 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env,
+            IHostApplicationLifetime applicationLifetime, IConsulClient consulClient)
         {
             if (env.IsDevelopment())
             {
@@ -66,6 +101,20 @@ namespace MSVenta.Venta
             {
                 endpoints.MapControllers();
             });
+
+            var serviceId = app.UseConsul();
+            applicationLifetime.ApplicationStopped.Register(() =>
+            {
+                consulClient.Agent.ServiceDeregister(serviceId);
+            });
+
+            ConfigureEventBus(app);
+        }
+
+        private void ConfigureEventBus(IApplicationBuilder app)
+        {
+            var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
+            eventBus.Subscribe<CategoriaCreatedEvent, CategoriaCreatedEventHandler>();
         }
     }
 }
