@@ -25,16 +25,18 @@ public class AlmacenService : IAlmacenService
         return await _contextDatabase.Almacenes.FirstOrDefaultAsync(a => a.Id == id);
     }
 
-    public async Task CreateAlmacenAsync(Almacen almacen)
+    public async Task<Almacen> CreateAlmacenAsync(Almacen almacen)
     {
         _contextDatabase.Almacenes.Add(almacen);
         await _contextDatabase.SaveChangesAsync();
+        return almacen;
     }
 
-    public async Task UpdateAlmacenAsync(Almacen almacen)
+    public async Task<Almacen> UpdateAlmacenAsync(Almacen almacen)
     {
         _contextDatabase.Almacenes.Update(almacen);
         await _contextDatabase.SaveChangesAsync();
+        return almacen;
     }
 
     public async Task DeleteAlmacenAsync(int id)

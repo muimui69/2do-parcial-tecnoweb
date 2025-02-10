@@ -26,16 +26,18 @@ namespace MSVenta.Inventario.Services
             return await _contextDatabase.Productos.Include(p => p.Categoria).FirstOrDefaultAsync(p => p.Id == id);
         }
 
-        public async Task CreateProductoAsync(Producto producto)
+        public async Task<Producto> CreateProductoAsync(Producto producto)
         {
             _contextDatabase.Productos.Add(producto);
             await _contextDatabase.SaveChangesAsync();
+            return producto;    
         }
 
-        public async Task UpdateProductoAsync(Producto producto)
+        public async Task<Producto> UpdateProductoAsync(Producto producto)
         {
             _contextDatabase.Productos.Update(producto);
             await _contextDatabase.SaveChangesAsync();
+            return producto;
         }
 
         public async Task DeleteProductoAsync(int id)

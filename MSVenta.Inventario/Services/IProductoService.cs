@@ -9,8 +9,8 @@ namespace MSVenta.Inventario.Services
     {
         Task<IEnumerable<Producto>> GetAllProductosAsync();
         Task<Producto> GetProductoByIdAsync(int id);
-        Task CreateProductoAsync(Producto producto);
-        Task UpdateProductoAsync(Producto producto);
+        Task<Producto> CreateProductoAsync(Producto producto);
+        Task<Producto> UpdateProductoAsync(Producto producto);
         Task DeleteProductoAsync(int id);
         bool Exists(int id);
     }

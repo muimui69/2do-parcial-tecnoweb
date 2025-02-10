@@ -60,7 +60,7 @@ namespace MSVenta.Inventario
             /*Start RabbitMQ*/
             services.AddMediatR(typeof(Startup).GetTypeInfo().Assembly);
             services.AddRabbitMQ();
-            services.AddTransient<IRequestHandler<CategoriaCreateCommand, bool>, CategoriaCommandHandler>();
+            //services.AddTransient<IRequestHandler<CategoriaCreateCommand, bool>, CategoriaCommandHandler>();
             /*End RabbitMQ*/
 
             /*Start - Consul*/
@@ -105,6 +105,21 @@ namespace MSVenta.Inventario
         {
             var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
             eventBus.Subscribe<CategoriaCreatedEvent, CategoriaEventHandler>();
+            eventBus.Subscribe<CategoriaUpdatedEvent, CategoriaUpdatedEventHandler>();
+            eventBus.Subscribe<CategoriaDeletedEvent, CategoriaDeletedEventHandler>();
+
+            eventBus.Subscribe<ProductoCreatedEvent, ProductoCreatedEventHandler>();
+            eventBus.Subscribe<ProductoUpdatedEvent, ProductoUpdatedEventHandler>();
+            eventBus.Subscribe<ProductoDeletedEvent, ProductoDeletedEventHandler>();
+
+            eventBus.Subscribe<ProductoAlmacenCreatedEvent, ProductoAlmacenCreatedEventHandler>();
+            eventBus.Subscribe<ProductoAlmacenUpdatedEvent, ProductoAlmacenUpdatedEventHandler>();
+            eventBus.Subscribe<ProductoAlmacenDeletedEvent, ProductoAlmacenDeletedEventHandler>();
+
+            eventBus.Subscribe<ProductoAlmacenCreatedEvent, ProductoAlmacenCreatedEventHandler>();
+            eventBus.Subscribe<ProductoAlmacenUpdatedEvent, ProductoAlmacenUpdatedEventHandler>();
+            eventBus.Subscribe<ProductoAlmacenDeletedEvent, ProductoAlmacenDeletedEventHandler>();
+
         }
     }
 }

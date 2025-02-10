@@ -33,10 +33,11 @@ namespace MSVenta.Inventario.Services
             return categoria;
         }
 
-        public async Task UpdateCategoriaAsync(Categoria categoria)
+        public async Task<Categoria> UpdateCategoriaAsync(Categoria categoria)
         {
             _contextDatabase.Categorias.Update(categoria);
             await _contextDatabase.SaveChangesAsync();
+            return categoria;
         }
 
         public async Task DeleteCategoriaAsync(int id)

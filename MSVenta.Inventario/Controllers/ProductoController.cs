@@ -3,6 +3,8 @@ using MSVenta.Inventario.Models;
 using MSVenta.Inventario.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Aforo255.Cross.Event.Src.Bus;
+using MSVenta.Inventario.Messages.Commands;
 
 namespace MSVenta.Inventario.Controllers
 {
@@ -11,10 +13,14 @@ namespace MSVenta.Inventario.Controllers
     public class ProductoController : Controller
     {
         private readonly IProductoService _productoService;
+        private readonly IEventBus _bus;
+        private readonly IVentaService _ventaService;
 
-        public ProductoController(IProductoService productoService)
+        public ProductoController(IProductoService productoService, IEventBus bus, IVentaService ventaService)
         {
             _productoService = productoService;
+            _bus = bus;
+            _ventaService = ventaService;
         }
 
         [HttpGet]
@@ -40,9 +46,28 @@ namespace MSVenta.Inventario.Controllers
             if (producto == null)
                 return BadRequest("Datos inválidos");
 
-            await _productoService.CreateProductoAsync(producto);
-            var nuevoProducto = await _productoService.GetProductoByIdAsync(producto.Id);
-            return CreatedAtAction(nameof(GetById), new { id = nuevoProducto.Id }, nuevoProducto);
+            Producto productoC = new Producto()
+            {
+                Nombre = producto.Nombre,
+                Descripcion = producto.Descripcion,
+                Precio = producto.Precio,
+                IdCategoria = producto.IdCategoria
+            };
+
+            productoC = await _productoService.CreateProductoAsync(producto);
+            bool isProccess = _ventaService.Execute(productoC, "create");
+            if (isProccess)
+            {
+                var productoCreateCommand = new ProductoCreateCommand(
+                    id: productoC.Id,
+                    nombre: productoC.Nombre,
+                    descripcion: productoC.Descripcion,
+                    precio: productoC.Precio,
+                    id_categoria: productoC.IdCategoria
+                );
+                _bus.SendCommand(productoCreateCommand);
+            }
+            return Ok(productoC);
         }
 
         [HttpPut("{id}")]
@@ -54,8 +79,31 @@ namespace MSVenta.Inventario.Controllers
             if (!_productoService.Exists(id))
                 return NotFound();
 
-            await _productoService.UpdateProductoAsync(producto);
-            return NoContent();
+            Producto productoP = new Producto()
+            {
+                Id = producto.Id,
+                Nombre = producto.Nombre,
+                Descripcion = producto.Descripcion,
+                Precio = producto.Precio,
+                IdCategoria = producto.IdCategoria
+            };
+
+            productoP = await _productoService.UpdateProductoAsync(producto);
+
+            bool isProccess = _ventaService.Execute(productoP, "update");
+            if (isProccess)
+            {
+                var productoUpdatedCommand = new ProductoUpdatedCommand(
+                    id: productoP.Id,
+                    nombre: productoP.Nombre,
+                    descripcion: productoP.Descripcion,
+                    precio: productoP.Precio,
+                    id_categoria: productoP.IdCategoria
+                );
+                _bus.SendCommand(productoUpdatedCommand);
+            };
+
+            return Ok(productoP);
         }
 
         [HttpDelete("{id}")]
@@ -65,6 +113,13 @@ namespace MSVenta.Inventario.Controllers
                 return NotFound();
 
             await _productoService.DeleteProductoAsync(id);
+
+            bool isProccess = _ventaService.Execute(new Producto { Id = id }, "delete");
+            if (isProccess)
+            {
+                var productoDeletedCommand = new ProductoDeletedCommand(id);
+                _bus.SendCommand(productoDeletedCommand);
+            };
             return NoContent();
         }
 

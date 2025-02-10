@@ -8,8 +8,8 @@ namespace MSVenta.Inventario.Services
     {
         Task<IEnumerable<Almacen>> GetAllAlmacenesAsync();
         Task<Almacen> GetAlmacenByIdAsync(int id);
-        Task CreateAlmacenAsync(Almacen almacen);
-        Task UpdateAlmacenAsync(Almacen almacen);
+        Task<Almacen> CreateAlmacenAsync(Almacen almacen);
+        Task<Almacen> UpdateAlmacenAsync(Almacen almacen);
         Task DeleteAlmacenAsync(int id);
         bool Exists(int id);
     }

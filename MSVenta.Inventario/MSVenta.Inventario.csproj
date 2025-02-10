@@ -20,11 +20,8 @@
 
 
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Messages\Commands\" />
-    <Folder Include="Messages\Events\" />
-    <Folder Include="Messages\CommandHandlers\" />
-  </ItemGroup>
+  
+  
+  
 
 </Project>

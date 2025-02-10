@@ -46,33 +46,23 @@ namespace MSVenta.Inventario.Controllers
             if (categoria == null)
                 return BadRequest("Datos inválidos");
 
-            await _categoriaService.CreateCategoriaAsync(categoria);
-            var nuevaCategoria = await _categoriaService.GetCategoriaByIdAsync(categoria.Id);
-            return CreatedAtAction(nameof(GetById), new { id = nuevaCategoria.Id }, nuevaCategoria);
-        }
-
-        [HttpPost("CrearCategoria")]
-        public async Task<ActionResult<Categoria>> CrearCategoria([FromBody] Categoria request)
-        {
-            Categoria categoria = new Categoria()
+            Categoria categoriaC = new Categoria()
             {
-                Nombre = request.Nombre
+                Nombre = categoria.Nombre
             };
 
-            categoria = await _categoriaService.CreateCategoriaAsync(categoria);
-
-            bool isProccess = _ventaService.Execute(categoria);
-            if (isProccess) 
+            categoriaC = await _categoriaService.CreateCategoriaAsync(categoria);
+            bool isProccess = _ventaService.Execute(categoriaC, "create");
+            if (isProccess)
             {
                 var categoriaCreateCommand = new CategoriaCreateCommand(
-                id: categoria.Id,
-                nombre: categoria.Nombre
+                id: categoriaC.Id,
+                nombre: categoriaC.Nombre
                 );
                 _bus.SendCommand(categoriaCreateCommand);
             };
-            return Ok(categoria);
+            return Ok(categoriaC);
         }
-
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] Categoria categoria)
@@ -82,9 +72,27 @@ namespace MSVenta.Inventario.Controllers
 
             if (!_categoriaService.Exists(id))
                 return NotFound();
+            
+            Categoria categoriaP = new Categoria()
+            {
+                Id = categoria.Id,
+                Nombre = categoria.Nombre
+            };
 
-            await _categoriaService.UpdateCategoriaAsync(categoria);
-            return NoContent();
+            categoriaP = await _categoriaService.UpdateCategoriaAsync(categoria);
+
+
+            bool isProccess = _ventaService.Execute(categoriaP, "update");
+            if (isProccess)
+            {
+                var categoriaUpdatedCommand = new CategoriaUpdatedCommand(
+                    id: categoriaP.Id,
+                    nombre: categoriaP.Nombre
+                );
+                _bus.SendCommand(categoriaUpdatedCommand);
+            };
+
+            return Ok(categoriaP);
         }
 
         [HttpDelete("{id}")]
@@ -94,6 +102,13 @@ namespace MSVenta.Inventario.Controllers
                 return NotFound();
 
             await _categoriaService.DeleteCategoriaAsync(id);
+
+            bool isProccess = _ventaService.Execute(new Categoria { Id = id}, "delete");
+            if (isProccess)
+            {
+                var categoriaDeletedCommand = new CategoriaDeletedCommand(id);
+                _bus.SendCommand(categoriaDeletedCommand);
+            };
             return NoContent();
         }
 
