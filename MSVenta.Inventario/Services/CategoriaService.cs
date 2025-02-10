@@ -1,11 +1,11 @@
 ﻿using MSVenta.Inventario.Repositories;
 using MSVenta.Inventario.Models;
-using MSVenta.Inventario.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
-namespace MSVenta.Inventario.Sevices
+namespace MSVenta.Inventario.Services
 {
     public class CategoriaService : ICategoriaService
     {

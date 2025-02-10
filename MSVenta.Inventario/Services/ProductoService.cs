@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using MSVenta.Inventario.Models;
 using MSVenta.Inventario.Repositories;
 
-namespace MSVenta.Inventario.Sevices
+namespace MSVenta.Inventario.Services
 {
     public class ProductoService : IProductoService
     {

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using MSVenta.Inventario.Models;
 
 
-namespace MSVenta.Inventario.Sevices
+namespace MSVenta.Inventario.Services
 {
     public interface IProductoService
     {

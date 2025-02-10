@@ -1,9 +1,10 @@
-﻿using MSVenta.Inventario.Sevices;
+﻿using MSVenta.Inventario.Services;
 using MSVenta.Inventario.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MSVenta.Inventario.Repositories;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 public class AlmacenService : IAlmacenService
 {

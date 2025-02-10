@@ -6,10 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MSVenta.Inventario.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using MSVenta.Inventario.Services;
 
 namespace MSVenta.Inventario
 {
@@ -31,7 +28,13 @@ namespace MSVenta.Inventario
               {
                   options.UseNpgsql(Configuration["postgres:cn"]);
               });
-            //services.AddScoped<ICustomerService, CustomerService>();
+            services.AddScoped<IAlmacenService, AlmacenService>();
+            services.AddScoped<ICategoriaService, CategoriaService>();
+            services.AddScoped<IProductoService, ProductoService>();
+            services.AddScoped<IProductoAlmacenService, ProductoAlmacenService>();
+            services.AddScoped<IDetalleAjusteService, DetalleAjusteService>();
+            services.AddScoped<IAjusteInventarioService, AjusteInventarioService>();
+            //services.AddProxyHttp();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -44,12 +47,11 @@ namespace MSVenta.Inventario
 
             app.UseRouting();
 
+            //app.UseAuthorization();
+
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGet("/", async context =>
-                {
-                    await context.Response.WriteAsync("Hello World!");
-                });
+                endpoints.MapControllers();
             });
         }
     }

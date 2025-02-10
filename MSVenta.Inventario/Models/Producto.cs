@@ -1,13 +1,28 @@
-﻿namespace MSVenta.Inventario.Models
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace MSVenta.Inventario.Models
 {
+    [Table("producto")]
     public class Producto
     {
+        [Key]
+        [Column("id_producto")]
         public int Id { get; set; }
-        public string Nombre { get; set; }
-        public string Descripcion { get; set; }
-        public string Imagen { get; set; }
-        public double Precio { get; set; }
-        public int Id_Categoria { get; set; }
-        public Categoria Categoria { get; set; }
+
+        [Column("nombre")]
+        public string Nombre { get; set; } = null!;
+
+        [Column("descripcion")]
+        public string Descripcion { get; set; } = null!;
+
+        [Column("precio")]
+        public decimal Precio { get; set; }
+
+        [Column("id_categoria")]
+        public int? IdCategoria { get; set; }
+
+        [ForeignKey("IdCategoria")]
+        public Categoria? Categoria { get; set; }
     }
 }

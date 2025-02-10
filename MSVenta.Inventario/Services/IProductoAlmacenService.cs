@@ -2,15 +2,17 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace MSVenta.Inventario.Sevices
+namespace MSVenta.Inventario.Services
 {
     public interface IProductoAlmacenService
     {
-        Task<IEnumerable<ProductoAlmacen>> GetAllAsync();
-        Task<ProductoAlmacen> GetByIdAsync(int id);
+        Task<IEnumerable<ProductoAlmacenDTO>> GetAllAsync();
+        Task<ProductoAlmacenDTO> GetByIdAsync(int id);
         Task<ProductoAlmacen> AddAsync(ProductoAlmacen productoAlmacen);
         Task<bool> UpdateAsync(ProductoAlmacen productoAlmacen);
         Task<bool> DeleteAsync(int id);
+        bool Exists(int id);
+
         //Task<AlmacenConProductosDto> GetAlmacenConProductosAsync(int almacenId);
     }
 }

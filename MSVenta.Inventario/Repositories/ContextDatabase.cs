@@ -23,17 +23,36 @@ namespace MSVenta.Inventario.Repositories
             modelBuilder.Entity<AjusteInventario>().ToTable("ajuste_inventario");
             modelBuilder.Entity<DetalleAjuste>().ToTable("detalle_ajuste");
 
+            modelBuilder.Entity<Categoria>(entity =>
+            {
+                entity.Property(c => c.Id).HasColumnName("id");
+                entity.Property(c => c.Nombre).HasColumnName("nombre");
+            });
+
             modelBuilder.Entity<Producto>(entity =>
             {
-                entity.Property(p => p.Id_Categoria).HasColumnName("id_categoria");
+                entity.Property(p => p.Id).HasColumnName("id_producto");
+                entity.Property(p => p.Nombre).HasColumnName("nombre");
+                entity.Property(p => p.Descripcion).HasColumnName("descripcion");
+                entity.Property(p => p.Precio).HasColumnName("precio");
+                entity.Property(p => p.IdCategoria).HasColumnName("id_categoria");
+
                 entity.HasOne(p => p.Categoria)
                       .WithMany()
-                      .HasForeignKey(p => p.Id_Categoria)
+                      .HasForeignKey(p => p.IdCategoria)
                       .OnDelete(DeleteBehavior.SetNull);
+            });
+
+            modelBuilder.Entity<Almacen>(entity =>
+            {
+                entity.Property(a => a.Id).HasColumnName("id");
+                entity.Property(a => a.Nombre).HasColumnName("nombre");
+                entity.Property(a => a.Ubicacion).HasColumnName("ubicacion");
             });
 
             modelBuilder.Entity<ProductoAlmacen>(entity =>
             {
+                entity.Property(pa => pa.Id).HasColumnName("id_producto_almacen");
                 entity.Property(pa => pa.ProductoId).HasColumnName("id_producto");
                 entity.Property(pa => pa.AlmacenId).HasColumnName("id_almacen");
                 entity.Property(pa => pa.Stock).HasColumnName("stock");
@@ -49,20 +68,31 @@ namespace MSVenta.Inventario.Repositories
                       .OnDelete(DeleteBehavior.Cascade);
             });
 
+            modelBuilder.Entity<AjusteInventario>(entity =>
+            {
+                entity.Property(ai => ai.Id).HasColumnName("id_ajuste_inventario");
+                entity.Property(ai => ai.IdUsuario).HasColumnName("id_usuario");
+                entity.Property(ai => ai.Fecha).HasColumnName("fecha");
+                entity.Property(ai => ai.Tipo).HasColumnName("tipo");
+                entity.Property(ai => ai.Descripcion).HasColumnName("descripcion");
+            });
+
             modelBuilder.Entity<DetalleAjuste>(entity =>
             {
-                entity.Property(da => da.AjusteInventarioId).HasColumnName("id_ajuste");
-                entity.Property(da => da.ProductoId).HasColumnName("id_producto");
+                entity.Property(da => da.Id).HasColumnName("id_detalle_ajuste");
+                entity.Property(da => da.IdAjusteInventario).HasColumnName("id_ajuste_inventario");
+                entity.Property(da => da.IdProductoAlmacen).HasColumnName("id_producto_almacen");
                 entity.Property(da => da.Cantidad).HasColumnName("cantidad");
 
+                // Relaciones
                 entity.HasOne(da => da.AjusteInventario)
-                      .WithMany()
-                      .HasForeignKey(da => da.AjusteInventarioId)
+                      .WithMany(ai => ai.DetallesAjuste)
+                      .HasForeignKey(da => da.IdAjusteInventario)
                       .OnDelete(DeleteBehavior.Cascade);
 
-                entity.HasOne(da => da.Producto)
-                      .WithMany()
-                      .HasForeignKey(da => da.ProductoId)
+                entity.HasOne(da => da.ProductoAlmacen)
+                      .WithMany(da =>da.DetallesAjuste)
+                      .HasForeignKey(da => da.IdProductoAlmacen)
                       .OnDelete(DeleteBehavior.Cascade);
             });
         }

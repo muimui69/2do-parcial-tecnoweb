@@ -5,7 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.3" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.1" />
+
+    <PackageReference Include="Aforo255.Cross.Http" Version="1.0.0" />
+    <PackageReference Include="Aforo255.Cross.Discovery" Version="1.0.0" />
+    <PackageReference Include="Aforo255.Cross.Token" Version="2.0.0" />
   </ItemGroup>
 
 </Project>
